@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOLFLIX | Supergirl: Woman of Tomorrow</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        netflixRed: '#E50914',
+                        netflixDark: '#141414',
+                        superBlue: '#004488',
+                        superRed: '#D2122E',
+                        superGold: '#F9A826',
+                        surface: '#181818',
+                        success: '#2b9348'
+                    },
+                    fontFamily: {
+                        bebas: ['"Bebas Neue"', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* FIXED VIEWPORT - STRICTLY NO BODY SCROLLING */
+        body {
+            background-color: #141414;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Dynamic Background System */
+        #dynamic-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            opacity: 0.3; z-index: 0; transition: background-image 1.5s ease-in-out, opacity 1.5s ease-in-out;
+            pointer-events: none; filter: contrast(1.2) brightness(0.8);
+        }
+        #bg-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, #141414 100%),
+                        linear-gradient(to top, #141414 0%, rgba(20,20,20,0.5) 50%, #141414 100%);
+            z-index: 1; pointer-events: none;
+        }
+
+        /* Fixed Step Management */
+        main {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .step-container {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none; opacity: 0;
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 2rem; z-index: 10;
+        }
+        .step-container.active {
+            display: flex; opacity: 1; animation: focusIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes focusIn {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); filter: blur(5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+
+        /* Glassmorphism Panel - Internal Scroll Only */
+        .glass-panel {
+            background: rgba(10, 12, 15, 0.85);
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            max-width: 1100px; width: 100%;
+            max-height: 82vh; 
+            overflow-y: auto; 
+            padding: 3rem;
+            position: relative;
+        }
+        
+        .glass-panel::-webkit-scrollbar { width: 8px; }
+        .glass-panel::-webkit-scrollbar-track { background: transparent; }
+        .glass-panel::-webkit-scrollbar-thumb { background: rgba(210, 18, 46, 0.5); border-radius: 10px; }
+
+        .netflix-title { font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px; }
+        .super-gradient {
+            background: linear-gradient(90deg, #004488, #F9A826, #D2122E);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+
+        /* Capsules */
+        .capsule {
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px;
+            background: rgba(0, 68, 136, 0.2); border: 1px solid #004488; border-radius: 500px;
+            font-size: 1.1rem; font-family: 'Cinzel', serif; letter-spacing: 0.1em; color: #FFF;
+            text-transform: uppercase; box-shadow: 0 4px 15px rgba(0, 68, 136, 0.4);
+            backdrop-filter: blur(10px);
+        }
+        .capsule.red { border-color: #D2122E; background: rgba(210, 18, 46, 0.2); box-shadow: 0 4px 15px rgba(210, 18, 46, 0.4); }
+
+        /* Speaking Hub */
+        .speaking-hub {
+            position: relative; background: rgba(0, 0, 0, 0.6);
+            border-left: 6px solid #D2122E; border-radius: 0 16px 16px 0;
+            padding: 2.5rem; margin-top: 2rem;
+            box-shadow: inset 0 0 30px rgba(210, 18, 46, 0.05);
+        }
+        .speaking-hub::before {
+            content: '🎙️ SPEAKING HUB'; position: absolute; top: -14px; left: 24px;
+            background: #D2122E; color: #FFF; font-weight: 800; font-size: 0.9rem;
+            letter-spacing: 0.1em; padding: 4px 16px; border-radius: 4px;
+        }
+        .speaking-starter {
+            display: inline-block; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15); color: #E5E5E5;
+            padding: 10px 20px; border-radius: 8px; font-size: 1.1rem;
+            margin: 6px; font-style: italic; transition: all 0.3s; cursor: default;
+        }
+        .speaking-starter:hover { border-color: #F9A826; background: rgba(249, 168, 38, 0.1); transform: translateX(5px); }
+
+        /* Interactive Elements */
+        .vocab-trigger { color: #F9A826; border-bottom: 2px dashed #F9A826; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+        .vocab-trigger:hover { color: #FFF; border-bottom-style: solid; text-shadow: 0 0 15px rgba(249, 168, 38, 0.8); }
+
+        .btn-netflix {
+            background-color: #D2122E; color: white; font-weight: 800;
+            padding: 16px 36px; border-radius: 8px; transition: all 0.3s; 
+            text-transform: uppercase; letter-spacing: 2px; font-size: 1.2rem;
+            box-shadow: 0 8px 25px rgba(210, 18, 46, 0.3); border: none; cursor: pointer;
+        }
+        .btn-netflix:hover { background-color: #ed1d24; transform: scale(1.02); box-shadow: 0 12px 35px rgba(210, 18, 46, 0.5); }
+
+        /* Sentence Builder */
+        .sb-word {
+            background: #FFF; color: #141414; font-weight: 800; padding: 12px 24px; border-radius: 8px;
+            cursor: pointer; user-select: none; transition: all 0.2s; border: 3px solid transparent;
+            font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .sb-word:hover { transform: translateY(-4px); border-color: #004488; }
+        .sb-dropzone { min-height: 90px; border: 3px dashed rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; transition: all 0.3s; background: rgba(0,0,0,0.3); }
+        .sb-dropzone.correct { border-color: #2b9348; background: rgba(43, 147, 72, 0.15); }
+        .sb-dropzone.incorrect { border-color: #D2122E; background: rgba(210, 18, 46, 0.15); animation: shake 0.4s; }
+
+        /* Grammar Sandbox */
+        .grammar-btn {
+            background: #222; border: 2px solid #444; color: #FFF; padding: 12px 24px; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: bold; font-size: 1.2rem;
+        }
+        .grammar-btn:hover { border-color: #F9A826; }
+        .grammar-btn.active { background: #F9A826; border-color: #F9A826; color: #000; box-shadow: 0 0 15px rgba(249, 168, 38, 0.6); }
+        .grammar-display {
+            font-size: 2.8rem; font-weight: 800; background: #000; padding: 30px; border-radius: 16px; border: 2px dashed #444; display: flex; justify-content: center; align-items: center; gap: 15px; transition: all 0.3s; flex-wrap: wrap; text-align: center;
+        }
+
+        /* Error Detection */
+        .error-text span { cursor: pointer; padding: 4px 10px; border-radius: 8px; transition: all 0.2s; font-weight: bold; }
+        .error-text span:hover { background: rgba(255, 255, 255, 0.15); }
+        .error-text span.wrong-clicked { color: #D2122E; background: rgba(210, 18, 46, 0.2); }
+        .error-text span.correct-clicked { animation: shake 0.4s; color: #666; }
+
+        /* Flip Cards */
+        .arena-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+        .flip-card { background-color: transparent; height: 260px; perspective: 1000px; cursor: pointer; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+        .flip-card-front { background: rgba(0, 68, 136, 0.3); border: 1px solid #004488; }
+        .flip-card-back { background: #004488; color: #FFF; transform: rotateY(180deg); }
+
+        /* Sliding Panels */
+        .side-panel { position: fixed; top: 0; right: -100%; width: 100%; max-width: 500px; height: 100vh; background: rgba(15,15,15,0.98); backdrop-filter: blur(20px); border-left: 1px solid #333; z-index: 50; transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; box-shadow: -20px 0 50px rgba(0,0,0,0.9); }
+        .side-panel.open { right: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 40; display: none; opacity: 0; transition: opacity 0.4s; backdrop-filter: blur(5px); }
+        .overlay.active { display: block; opacity: 1; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+    </style>
+</head>
+<body class="text-lg md:text-xl">
+
+    <div id="dynamic-bg"></div>
+    <div id="bg-overlay"></div>
+
+    <header class="h-20 md:h-24 flex items-center justify-between px-8 md:px-10 shrink-0 relative z-20 bg-gradient-to-b from-black to-transparent">
+        <div class="flex items-center gap-6">
+            <span class="netflix-title text-4xl md:text-5xl text-netflixRed tracking-widest font-bold">WOLFLIX</span>
+            <span class="px-3 py-1 border border-gray-600 rounded text-xs tracking-widest text-gray-300 uppercase hidden md:block font-bold">DC Series Edition</span>
+        </div>
+
+        <div class="flex-1 max-w-2xl mx-12 hidden lg:block">
+            <div class="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full bg-superBlue transition-all duration-500 ease-out" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-8">
+            <button onclick="toggleFullscreen()" class="text-gray-300 hover:text-white transition-colors" title="Fullscreen">
+                <i data-lucide="maximize" class="w-7 h-7"></i>
+            </button>
+            <button onclick="toggleWhiteboard()" class="text-gray-300 hover:text-white transition-colors flex items-center gap-3">
+                <i data-lucide="pen-tool" class="w-7 h-7"></i>
+                <span class="hidden sm:inline text-lg font-bold uppercase tracking-wider">Director's Board</span>
+            </button>
+        </div>
+    </header>
+
+    <main id="lesson-container">
+
+        <!-- STEP 1: Briefing -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel text-center">
+                <h1 class="netflix-title text-6xl md:text-8xl text-white mb-6 drop-shadow-lg">Director's Briefing</h1>
+                
+                <p class="text-2xl text-gray-300 leading-relaxed mb-10 max-w-4xl mx-auto">
+                    Welcome to WOLFLIX. Today we analyze the epic trailer for <strong class="text-white">Supergirl: Woman of Tomorrow</strong>. It is a cinematic story about deep trauma, losing a planet, and adapting to a completely alien world.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8 text-left">
+                    <div class="bg-black/50 p-8 rounded-xl border-l-8 border-superBlue shadow-lg">
+                        <h3 class="font-bold text-white text-2xl mb-4 flex items-center gap-3"><i data-lucide="globe" class="text-superBlue"></i> The Theme</h3>
+                        <p class="text-gray-300 text-xl leading-relaxed">Adapting to the unknown. How does someone live on Earth after watching their entire civilization burn?</p>
+                    </div>
+                    <div class="bg-black/50 p-8 rounded-xl border-l-8 border-superRed shadow-lg">
+                        <h3 class="font-bold text-white text-2xl mb-4 flex items-center gap-3"><i data-lucide="zap" class="text-superRed"></i> Your Role</h3>
+                        <p class="text-gray-300 text-xl leading-relaxed">You will watch the trailer, discover the grammar, and speak your mind using the <strong class="text-white">Speaking Hubs</strong>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: Cover with Badges -->
+        <section class="step-container flex-col text-center" data-bg="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80">
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <span class="capsule"><i data-lucide="bar-chart" class="w-5 h-5"></i> Level B1 / B2</span>
+                <span class="capsule red"><i data-lucide="book" class="w-5 h-5"></i> Used To / Be Used To / Get Used To</span>
+            </div>
+
+            <h1 class="netflix-title text-[7rem] md:text-[10rem] lg:text-[12rem] super-gradient drop-shadow-2xl mb-4 leading-none text-center">
+                SUPERGIRL
+            </h1>
+            <p class="text-3xl md:text-5xl text-white font-light tracking-[0.4em] uppercase drop-shadow-lg mb-8">
+                Woman of Tomorrow
+            </p>
+            <p class="text-xl md:text-3xl text-gray-200 font-light max-w-4xl mx-auto drop-shadow-lg leading-relaxed bg-black/40 p-6 rounded-xl backdrop-blur-sm">
+                Kal-El was a baby. He doesn't remember Krypton. Kara was a teenager. She saw it all end.
+            </p>
+        </section>
+
+        <!-- STEP 3: Warm-up -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-superGold mb-4">
+                    <i data-lucide="flame" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Personal Empathy</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">A Strange New World</h2>
+                
+                <p class="text-2xl text-gray-200 mb-10 leading-relaxed">Imagine you are forced to move to a country on the other side of the planet. You don't speak the language, the food is completely different, and the weather is terrible.</p>
+                
+                <div class="speaking-hub">
+                    <p class="text-white mb-6 font-bold text-2xl">What would be the hardest thing for you to adapt to?</p>
+                    <div class="flex flex-col gap-4">
+                        <span class="speaking-starter w-fit">The hardest thing for me would be...</span>
+                        <span class="speaking-starter w-fit">I think I would never adapt to the...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 4: Vocab 1 -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel text-center">
+                <h2 class="netflix-title text-6xl mb-6">Cosmic Vocabulary 1</h2>
+                <p class="text-gray-300 mb-10 text-2xl">Click the yellow words to open the WOLFLIX Dictionary and uncover the meaning.</p>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-black/50 p-12 rounded-xl border-t-4 border-superGold hover:bg-black/70 transition-colors">
+                        <i data-lucide="orbit" class="w-16 h-16 text-superGold mx-auto mb-6"></i>
+                        <p class="text-4xl font-light">The planet's <span class="vocab-trigger" onclick="openDictionary('Gravity', 'The force that attracts a body toward the center of the earth.', 'The gravity on Krypton was much heavier.', 'How would you feel living without gravity?')">gravity</span>.</p>
+                    </div>
+                    <div class="bg-black/50 p-12 rounded-xl border-t-4 border-superGold hover:bg-black/70 transition-colors">
+                        <i data-lucide="venetian-mask" class="w-16 h-16 text-superGold mx-auto mb-6"></i>
+                        <p class="text-4xl font-light">She is an <span class="vocab-trigger" onclick="openDictionary('Alien', 'A creature from another planet; or someone unfamiliar with an environment.', 'Superman is an alien from Krypton.', 'Do you believe aliens exist?')">alien</span>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 5: Vocab 2 -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel text-center">
+                <h2 class="netflix-title text-6xl mb-6">Cosmic Vocabulary 2</h2>
+                <p class="text-gray-300 mb-10 text-2xl">Discover the psychological vocabulary used in the trailer.</p>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-black/50 p-12 rounded-xl border-t-4 border-superBlue hover:bg-black/70 transition-colors">
+                        <i data-lucide="shield" class="w-16 h-16 text-superBlue mx-auto mb-6"></i>
+                        <p class="text-4xl font-light">A heavy <span class="vocab-trigger" onclick="openDictionary('Burden', 'A heavy load; a huge responsibility or emotional trauma.', 'Being a hero is a heavy burden.', 'What is the biggest burden in your life right now?')">burden</span>.</p>
+                    </div>
+                    <div class="bg-black/50 p-12 rounded-xl border-t-4 border-superBlue hover:bg-black/70 transition-colors">
+                        <i data-lucide="heart-crack" class="w-16 h-16 text-superBlue mx-auto mb-6"></i>
+                        <p class="text-4xl font-light">Surviving the <span class="vocab-trigger" onclick="openDictionary('Grief', 'Deep sorrow, especially caused by someone\'s death.', 'She felt immense grief after losing her planet.', 'How do people usually deal with grief?')">grief</span>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 6: Pre-Video -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <h2 class="netflix-title text-6xl mb-6">Pre-Video Focus</h2>
+                <p class="text-2xl text-gray-200 mb-10 leading-relaxed">We are going to watch the official teaser trailer. The tone is dark, gritty, and very different from Superman's bright optimism.</p>
+                
+                <div class="speaking-hub">
+                    <p class="text-white mb-6 font-bold text-2xl">While you watch, pay attention:</p>
+                    <ul class="text-gray-300 text-2xl space-y-4 list-disc pl-8">
+                        <li>Does she look happy to be on Earth?</li>
+                        <li>What is she trying to forget?</li>
+                        <li>How does the music make you feel?</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 7: The Trailer -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel flex flex-col items-center">
+                <h2 class="netflix-title text-6xl text-superRed mb-4 drop-shadow-md">OFFICIAL TRAILER</h2>
+                <p class="text-gray-300 mb-8 text-2xl">Immerse yourself. Turn up the volume.</p>
+                
+                <div class="w-full max-w-4xl aspect-video rounded-xl overflow-hidden border-2 border-gray-700 shadow-[0_20px_50px_rgba(0,68,136,0.3)] bg-black relative">
+                    <iframe width="100%" height="100%" src="https://www.youtube.com/embed/s1-pfiVMKAs?rel=0" title="Supergirl Trailer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 8: Impressions -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <h2 class="netflix-title text-6xl mb-6">First Impressions</h2>
+                <p class="text-2xl text-gray-200 mb-10 leading-relaxed">Kara Zor-El did not arrive on Earth as a baby. She spent 14 years on a dying planet before being sent to protect her baby cousin. She remembers everything.</p>
+                
+                <div class="speaking-hub">
+                    <p class="text-white mb-6 font-bold text-2xl">Discuss your reaction to the trailer:</p>
+                    <div class="flex flex-col gap-4">
+                        <span class="speaking-starter w-fit">The trailer was much darker than I...</span>
+                        <span class="speaking-starter w-fit">I think she is angry because...</span>
+                        <span class="speaking-starter w-fit">Unlike Superman, Supergirl remembers...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 9: Fact Check -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel text-center">
+                <div class="inline-flex items-center gap-3 text-superRed mb-4">
+                    <i data-lucide="check-circle" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Fact Check</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-8">The Backstory</h2>
+                <p class="text-2xl text-gray-300 mb-10">Is this statement True or False according to the lore?</p>
+
+                <p class="text-4xl text-white font-light leading-relaxed mb-12 italic border-l-4 border-superRed pl-6 max-w-4xl mx-auto">
+                    "Just like her cousin Kal-El (Superman), Kara was sent to Earth as a newborn baby and raised by humans on a farm."
+                </p>
+                
+                <div class="flex justify-center gap-8">
+                    <button onclick="checkFact(this, true)" class="px-10 py-4 bg-surface border border-gray-600 hover:bg-gray-700 text-white rounded font-bold transition-all text-xl uppercase">True</button>
+                    <button onclick="checkFact(this, false)" class="px-10 py-4 bg-surface border border-gray-600 hover:bg-gray-700 text-white rounded font-bold transition-all text-xl uppercase">False</button>
+                </div>
+                <p id="fact-feedback" class="mt-8 text-2xl font-bold h-8"></p>
+            </div>
+        </section>
+
+        <!-- STEP 10: Pattern Recognition -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-superGold mb-4">
+                    <i data-lucide="search" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Pattern Recognition</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">The Process of Adapting</h2>
+                <p class="text-gray-300 mb-10 text-2xl">Read the sentences below. They look similar, but have very different meanings.</p>
+
+                <div class="grid md:grid-cols-2 gap-10 mb-8">
+                    <div class="bg-black/60 p-10 rounded-xl border-l-8 border-superRed shadow-lg">
+                        <h4 class="text-gray-400 font-bold mb-4 uppercase tracking-widest text-sm">Sentence A</h4>
+                        <p class="text-4xl text-white font-light">"Kara <strong class="text-superRed">used to</strong> live on Krypton."</p>
+                    </div>
+                    <div class="bg-black/60 p-10 rounded-xl border-l-8 border-superBlue shadow-lg">
+                        <h4 class="text-gray-400 font-bold mb-4 uppercase tracking-widest text-sm">Sentence B</h4>
+                        <p class="text-4xl text-white font-light">"She is <strong class="text-superBlue">used to</strong> flying."</p>
+                    </div>
+                </div>
+                
+                <div class="speaking-hub mt-0">
+                    <p class="text-white font-bold text-2xl">Discuss: Which sentence talks about a habit in the PAST that is finished? Which one means "it is normal for her now"?</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 11: The Adaptation Machine -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <h2 class="netflix-title text-6xl mb-6">The Adaptation Machine</h2>
+                <p class="text-2xl text-gray-200 mb-10 leading-relaxed">Let's unlock the grammar. Click the buttons to see how the meaning changes entirely.</p>
+                
+                <div class="flex flex-wrap justify-center gap-6 mb-10">
+                    <button class="grammar-btn" onclick="updateGrammar('usedto')">Used to + Verb</button>
+                    <button class="grammar-btn" onclick="updateGrammar('beusedto')">Be used to + Noun/ING</button>
+                    <button class="grammar-btn" onclick="updateGrammar('getusedto')">Get used to + Noun/ING</button>
+                </div>
+
+                <div class="grammar-display mb-10 min-h-[160px]" id="grammar-box">
+                    <span class="text-gray-500 italic text-3xl">Select a grammar structure above.</span>
+                </div>
+
+                <div class="bg-black/50 p-8 rounded-xl border border-gray-700 shadow-md min-h-[140px] flex items-center justify-center">
+                    <p id="grammar-explanation" class="text-2xl text-gray-300 leading-relaxed text-center">Click to explore the rules.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 12: Focus 1 "Used To" -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <h2 class="netflix-title text-6xl mb-6 text-superRed">1. Used to (Past Habit)</h2>
+                
+                <p class="text-2xl text-gray-200 mb-8 leading-relaxed">We use <strong class="text-white">used to + Base Verb</strong> for things that were true or habits in the past, but are <strong class="text-superRed border-b-2 border-superRed">NOT true today</strong>.</p>
+                
+                <div class="bg-black/60 p-8 rounded-xl border-l-4 border-gray-500 mb-8">
+                    <p class="text-3xl text-white font-light">"I <strong class="text-superRed">used to</strong> see two suns in the sky."</p>
+                    <p class="text-xl text-gray-400 mt-4 italic">(Now I only see one sun on Earth.)</p>
+                </div>
+
+                <div class="speaking-hub">
+                    <p class="text-white mb-4 font-bold text-2xl">Your Turn:</p>
+                    <div class="flex flex-col gap-4">
+                        <span class="speaking-starter w-fit">When I was a child, I used to...</span>
+                        <span class="speaking-starter w-fit">I used to play _____, but now I don't have time.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 13: Syntax Builder 1 (Used to) -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-superRed mb-4">
+                    <i data-lucide="layers" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Syntax Builder 1</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">The Past Memory</h2>
+                <p class="text-gray-300 mb-10 text-2xl">Unscramble the words to talk about a finished habit in Kara's past.</p>
+
+                <div id="dropzone-1" class="sb-dropzone mb-10" ondragover="event.preventDefault()"></div>
+                
+                <div id="wordbank-1" class="flex flex-wrap justify-center gap-6 mb-10">
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-1', 'wordbank-1')">Krypton</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-1', 'wordbank-1')">to</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-1', 'wordbank-1')">live</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-1', 'wordbank-1')">Kara</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-1', 'wordbank-1')">used</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-1', 'wordbank-1')">on</div>
+                </div>
+
+                <button onclick="checkSentenceBuilder('dropzone-1', ['Kara', 'used', 'to', 'live', 'on', 'Krypton'])" class="btn-netflix w-full">Check Syntax</button>
+                <p id="sb-feedback-1" class="text-center mt-8 hidden font-bold text-3xl"></p>
+            </div>
+        </section>
+
+        <!-- STEP 14: Error Detection 1 -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-superRed mb-4">
+                    <i data-lucide="alert-circle" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Error Detection 1</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">Find the Glitch</h2>
+                <p class="text-gray-300 mb-12 text-2xl">Click on the grammatically INCORRECT word in the sentence below. Remember the past habit rule.</p>
+
+                <div class="text-center text-4xl font-bold leading-loose error-text bg-black/50 p-12 rounded-xl border-l-8 border-superRed mb-8">
+                    "I <span onclick="checkError(this, true, 'used', 'error-feedback-1')" class="wrong-target">use</span> <span onclick="checkError(this, false, '', 'error-feedback-1')">to</span> <span onclick="checkError(this, false, '', 'error-feedback-1')">have</span> a <span onclick="checkError(this, false, '', 'error-feedback-1')">family</span>."
+                </div>
+                <p id="error-feedback-1" class="text-center text-gray-400 text-2xl h-10 font-bold"></p>
+            </div>
+        </section>
+
+        <!-- STEP 15: Focus 2 "Be Used To" -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <h2 class="netflix-title text-6xl mb-6 text-superBlue">2. Be used to (Current Normal)</h2>
+                
+                <p class="text-2xl text-gray-200 mb-8 leading-relaxed">We use <strong class="text-white">Verb to Be + used to + ING/Noun</strong> to say that something is familiar, normal, and <strong class="text-superBlue border-b-2 border-superBlue">not strange anymore</strong>.</p>
+                
+                <div class="bg-black/60 p-8 rounded-xl border-l-4 border-gray-500 mb-8">
+                    <p class="text-3xl text-white font-light">"She <strong class="text-superBlue">is used to</strong> flying."</p>
+                    <p class="text-xl text-gray-400 mt-4 italic">(Flying is normal for her now. She is adapted.)</p>
+                </div>
+
+                <div class="bg-netflixRed/20 border border-netflixRed p-6 rounded-xl">
+                    <p class="text-white text-xl font-bold"><i data-lucide="alert-triangle" class="inline w-6 h-6 mr-2"></i> GRAMMAR ALERT</p>
+                    <p class="text-gray-300 text-lg mt-2">After "be used to", if you use an action, it MUST have <strong class="text-white">-ING</strong>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 16: Syntax Builder 2 (Be Used To) -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-superBlue mb-4">
+                    <i data-lucide="layers" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Syntax Builder 2</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">The Current Normal</h2>
+                <p class="text-gray-300 mb-10 text-2xl">Unscramble the words to state that having superpowers is completely normal for her now.</p>
+
+                <div id="dropzone-2" class="sb-dropzone mb-10" ondragover="event.preventDefault()"></div>
+                
+                <div id="wordbank-2" class="flex flex-wrap justify-center gap-6 mb-10">
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-2', 'wordbank-2')">She</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-2', 'wordbank-2')">used</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-2', 'wordbank-2')">is</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-2', 'wordbank-2')">flying</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-2', 'wordbank-2')">to</div>
+                </div>
+
+                <button onclick="checkSentenceBuilder('dropzone-2', ['She', 'is', 'used', 'to', 'flying'])" class="btn-netflix w-full">Check Syntax</button>
+                <p id="sb-feedback-2" class="text-center mt-8 hidden font-bold text-3xl"></p>
+            </div>
+        </section>
+
+        <!-- STEP 17: Error Detection 2 -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-superBlue mb-4">
+                    <i data-lucide="alert-circle" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Error Detection 2</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">Find the Glitch</h2>
+                <p class="text-gray-300 mb-12 text-2xl">Click on the grammatically INCORRECT word in the sentence below. Remember the "ING" rule.</p>
+
+                <div class="text-center text-4xl font-bold leading-loose error-text bg-black/50 p-12 rounded-xl border-l-8 border-superBlue mb-8">
+                    "I am an alien, but I <span onclick="checkError(this, false, '', 'error-feedback-2')">am</span> <span onclick="checkError(this, false, '', 'error-feedback-2')">used</span> <span onclick="checkError(this, false, '', 'error-feedback-2')">to</span> <span onclick="checkError(this, true, 'saving', 'error-feedback-2')" class="wrong-target">save</span> the <span onclick="checkError(this, false, '', 'error-feedback-2')">world</span>."
+                </div>
+                <p id="error-feedback-2" class="text-center text-gray-400 text-2xl h-10 font-bold"></p>
+            </div>
+        </section>
+
+        <!-- STEP 18: Focus 3 "Get Used To" -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <h2 class="netflix-title text-6xl mb-6 text-superGold">3. Get used to (The Process)</h2>
+                
+                <p class="text-2xl text-gray-200 mb-8 leading-relaxed">We use <strong class="text-white">Get used to + ING/Noun</strong> to talk about the <strong class="text-superGold border-b-2 border-superGold">process of becoming familiar</strong> with something new. It means adapting.</p>
+                
+                <div class="bg-black/60 p-8 rounded-xl border-l-4 border-gray-500 mb-8">
+                    <p class="text-3xl text-white font-light">"She is <strong class="text-superGold">getting used to</strong> the yellow sun."</p>
+                    <p class="text-xl text-gray-400 mt-4 italic">(It was strange at first, but she is slowly adapting to it right now.)</p>
+                </div>
+
+                <div class="speaking-hub mt-0">
+                    <p class="text-white mb-4 font-bold text-2xl">Your Turn:</p>
+                    <div class="flex flex-col gap-4">
+                        <span class="speaking-starter w-fit">I am currently getting used to... (waking up early / my new job)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 19: Syntax Builder 3 (Get Used To) -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-superGold mb-4">
+                    <i data-lucide="layers" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Syntax Builder 3</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">The Process</h2>
+                <p class="text-gray-300 mb-10 text-2xl">Build a sentence using "getting used to" (the process of adapting).</p>
+
+                <div id="dropzone-3" class="sb-dropzone mb-10" ondragover="event.preventDefault()"></div>
+                
+                <div id="wordbank-3" class="flex flex-wrap justify-center gap-6 mb-10">
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-3', 'wordbank-3')">sun</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-3', 'wordbank-3')">getting</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-3', 'wordbank-3')">used</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-3', 'wordbank-3')">She</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-3', 'wordbank-3')">yellow</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-3', 'wordbank-3')">is</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-3', 'wordbank-3')">to</div>
+                    <div class="sb-word" onclick="moveWord(this, 'dropzone-3', 'wordbank-3')">the</div>
+                </div>
+
+                <button onclick="checkSentenceBuilder('dropzone-3', ['She', 'is', 'getting', 'used', 'to', 'the', 'yellow', 'sun'])" class="btn-netflix w-full">Check Syntax</button>
+                <p id="sb-feedback-3" class="text-center mt-8 hidden font-bold text-3xl"></p>
+            </div>
+        </section>
+
+        <!-- STEP 20: Error Detection 3 -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-superGold mb-4">
+                    <i data-lucide="alert-circle" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Error Detection 3</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">Find the Glitch</h2>
+                <p class="text-gray-300 mb-12 text-2xl">Click on the grammatically INCORRECT word. Remember: the rule for "get used to" is the same as "be used to".</p>
+
+                <div class="text-center text-4xl font-bold leading-loose error-text bg-black/50 p-12 rounded-xl border-l-8 border-superGold mb-8">
+                    "I am <span onclick="checkError(this, false, '', 'error-feedback-3')">getting</span> <span onclick="checkError(this, false, '', 'error-feedback-3')">used</span> <span onclick="checkError(this, false, '', 'error-feedback-3')">to</span> <span onclick="checkError(this, true, 'living', 'error-feedback-3')" class="wrong-target">live</span> <span onclick="checkError(this, false, '', 'error-feedback-3')">on</span> Earth."
+                </div>
+                <p id="error-feedback-3" class="text-center text-gray-400 text-2xl h-10 font-bold"></p>
+            </div>
+        </section>
+
+        <!-- STEP 21: Chat Scenario -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-superGold mb-4">
+                    <i data-lucide="message-square" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">Chat Scenario</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">Cousin Advice</h2>
+                <p class="text-gray-300 mb-8 text-2xl">Read the encrypted text between Superman (Clark) and Supergirl (Kara).</p>
+
+                <div class="bg-black/80 p-8 rounded-xl border border-gray-700 flex flex-col gap-6 mb-8">
+                    <div class="bg-superBlue text-white p-4 rounded-xl max-w-[80%] self-end text-xl">
+                        Kara, you need to relax. Earth is safe now.
+                    </div>
+                    <div class="bg-gray-800 text-white p-4 rounded-xl max-w-[80%] self-start text-xl">
+                        It's hard, Kal. I <strong class="text-superRed">used to</strong> fight every single day to survive. The destruction was everywhere.
+                    </div>
+                    <div class="bg-superBlue text-white p-4 rounded-xl max-w-[80%] self-end text-xl">
+                        I know. But you will <strong class="text-superGold">get used to</strong> the peace here. Give it time.
+                    </div>
+                </div>
+
+                <div class="speaking-hub mt-0">
+                    <p class="text-white mb-2 font-bold text-2xl">Discussion:</p>
+                    <p class="text-gray-300 text-xl">Why does Superman say she will "get used to" the peace? What does that mean psychologically?</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 22: Speaking - The Process of Change -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <h2 class="netflix-title text-6xl mb-6">The Process of Change</h2>
+                
+                <p class="text-2xl text-gray-200 mb-10 leading-relaxed">Adapting (getting used to something) is a painful but necessary process, whether you are a superhero learning to control heat vision, or a human moving to a new city.</p>
+                
+                <div class="speaking-hub">
+                    <p class="text-white mb-6 font-bold text-2xl">Think about your own life right now.</p>
+                    <div class="flex flex-col gap-6">
+                        <span class="speaking-starter w-fit">Right now, I am getting used to... (a new routine, diet, study schedule)</span>
+                        <span class="speaking-starter w-fit">Last year, it was very hard to get used to...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 23: The Arena -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel">
+                <div class="inline-flex items-center gap-3 text-netflixRed mb-2">
+                    <i data-lucide="swords" class="w-8 h-8"></i>
+                    <span class="font-bold tracking-widest text-xl uppercase">The Arena</span>
+                </div>
+                <h2 class="netflix-title text-6xl mb-6">Debate the Burden</h2>
+                <p class="text-gray-300 mb-10 text-2xl">Click the card and debate the ethical question with your teacher.</p>
+
+                <div class="arena-grid">
+                    <div class="flip-card mx-auto max-w-md w-full" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <i data-lucide="shield-alert" class="w-16 h-16 text-superBlue mb-6"></i>
+                                <h3 class="font-bold text-white text-3xl uppercase tracking-widest">Debate</h3>
+                            </div>
+                            <div class="flip-card-back">
+                                <p class="text-2xl font-medium px-8 leading-relaxed">"If you had god-like powers like Supergirl, would you feel obligated to save the world, or would you try to live a normal life?"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 24: Ultimate Question -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel text-center border-t-8 border-superBlue">
+                <h2 class="netflix-title text-huge text-white mb-8 drop-shadow-xl">The Legacy</h2>
+                <i data-lucide="star" class="w-20 h-20 text-superGold mx-auto mb-10"></i>
+                <p class="text-4xl text-white font-light leading-relaxed mb-12">
+                    "If you had to leave Earth forever and live on another planet, what is one thing from Earth you would <strong class="text-superRed font-bold">never</strong> get used to living without?"
+                </p>
+                <p class="text-xl text-gray-500 uppercase tracking-widest font-bold">Open the Director's Board and write it down.</p>
+            </div>
+        </section>
+
+        <!-- STEP 25: Wrap-up -->
+        <section class="step-container flex-col" data-bg="">
+            <div class="glass-panel text-center border border-gray-700">
+                <h2 class="netflix-title text-[7rem] text-white mb-4 drop-shadow-2xl leading-none">Episode Complete</h2>
+                <p class="text-2xl text-gray-400 mb-10 uppercase tracking-[0.3em] font-bold">Next Episode plays in 5...</p>
+                
+                <h3 class="font-bold text-superGold mb-6 text-3xl uppercase tracking-wider">Homework Suggestion</h3>
+                
+                <div class="bg-black/60 p-8 rounded-xl text-left mb-10 border-l-8 border-superBlue shadow-inner mx-auto max-w-3xl">
+                    <ul class="text-gray-300 space-y-5 text-2xl leading-relaxed">
+                        <li><strong class="text-superBlue">•</strong> Write 2 sentences about something you <strong>used to</strong> do as a child.</li>
+                        <li><strong class="text-superBlue">•</strong> Write 2 sentences about something you are <strong>getting used to</strong> right now.</li>
+                    </ul>
+                </div>
+
+                <button onclick="alert('Episode complete. Returning to WOLFLIX menu.')" class="btn-netflix flex items-center justify-center gap-4 py-4 text-2xl mx-auto w-full max-w-md">
+                    <i data-lucide="play" class="w-8 h-8 fill-current"></i>
+                    Finish Lesson
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Fixed Bottom Footer -->
+    <footer class="h-24 bg-black/95 border-t border-gray-800 flex justify-between items-center px-10 shrink-0 relative z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
+        <button id="btn-prev" onclick="prevStep()" class="px-8 py-3 border-2 border-gray-600 text-white hover:border-white hover:bg-white/5 transition-all rounded-lg uppercase font-bold text-lg tracking-widest disabled:opacity-20 flex items-center gap-3">
+            <i data-lucide="chevron-left" class="w-6 h-6"></i> Back
+        </button>
+        
+        <div class="text-lg text-gray-400 font-bold tracking-widest uppercase hidden sm:block">
+            Scene <span id="current-step-display" class="text-white text-xl mx-2">1</span> / 25
+        </div>
+
+        <button id="btn-next" onclick="nextStep()" class="px-8 py-3 bg-superRed text-white hover:bg-red-700 transition-all rounded-lg uppercase font-bold text-lg tracking-widest disabled:opacity-20 flex items-center gap-3 shadow-[0_0_15px_rgba(210,18,46,0.4)]">
+            Next <i data-lucide="chevron-right" class="w-6 h-6"></i>
+        </button>
+    </footer>
+
+    <!-- Overlays & Panels -->
+    <div id="overlay" class="overlay" onclick="closePanels()"></div>
+
+    <div id="dict-panel" class="side-panel p-10">
+        <div class="flex justify-between items-center mb-10 pb-6 border-b border-gray-800">
+            <h3 class="font-bold text-2xl text-white uppercase tracking-widest">Word Info</h3>
+            <button onclick="closePanels()" class="text-gray-400 hover:text-white bg-surface p-2 rounded-full transition-colors">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+        </div>
+        <div class="space-y-8 flex-1 overflow-y-auto">
+            <div>
+                <p id="dict-word" class="netflix-title text-6xl text-superGold mb-4 tracking-widest">Word</p>
+                <p id="dict-def" class="text-gray-300 text-2xl leading-relaxed">Definition goes here.</p>
+            </div>
+            <div class="bg-black/50 p-6 rounded-xl border-l-4 border-gray-600">
+                <p class="text-sm text-gray-500 uppercase tracking-widest mb-3 font-bold">Example in context</p>
+                <p id="dict-ex" class="text-gray-200 italic text-xl">"Example text."</p>
+            </div>
+            <div class="speaking-hub !mt-6 !p-8 !border-l-4 !border-superGold">
+                <p id="dict-prompt" class="text-white text-xl font-bold leading-relaxed">Prompt text.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Director's Board -->
+    <div id="whiteboard-panel" class="side-panel p-10 flex flex-col">
+        <div class="flex justify-between items-center mb-6 pb-6 border-b border-gray-800">
+            <h3 class="font-bold text-2xl text-white uppercase tracking-widest flex items-center gap-3">
+                <i data-lucide="clapperboard" class="w-8 h-8 text-superBlue"></i> Director's Notes
+            </h3>
+            <button onclick="closePanels()" class="text-gray-400 hover:text-white bg-surface p-2 rounded-full transition-colors">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+        </div>
+        <div class="flex gap-2 mb-6 bg-black/80 p-2 rounded-lg border border-gray-800 shadow-md">
+            <button onclick="addNoteTimestamp()" class="flex-1 flex items-center justify-center gap-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800 py-2 rounded transition-colors font-bold" title="Insert Scene Tag">
+                <i data-lucide="tag" class="w-4 h-4"></i> Tag
+            </button>
+            <div class="w-px bg-gray-700 my-1"></div>
+            <button onclick="clearWhiteboard()" class="flex-1 flex items-center justify-center gap-2 text-sm text-gray-300 hover:text-netflixRed hover:bg-red-900/20 py-2 rounded transition-colors font-bold" title="Clear Notes">
+                <i data-lucide="trash-2" class="w-4 h-4"></i> Clear
+            </button>
+            <div class="w-px bg-gray-700 my-1"></div>
+            <button onclick="downloadNotes()" class="flex-1 flex items-center justify-center gap-2 text-sm text-white bg-superBlue hover:bg-blue-700 py-2 rounded transition-colors font-bold tracking-wider" title="Download as TXT">
+                <i data-lucide="download" class="w-4 h-4"></i> Save
+            </button>
+        </div>
+        <div class="flex-1 relative group flex flex-col">
+            <div class="absolute -inset-1 bg-gradient-to-b from-superBlue to-transparent opacity-0 group-focus-within:opacity-20 rounded-xl transition-opacity duration-500 blur-md pointer-events-none"></div>
+            <textarea id="whiteboard-textarea" class="relative flex-1 w-full bg-black/60 text-gray-200 resize-none outline-none border border-gray-700 p-6 rounded-xl focus:border-superBlue transition-all font-mono text-xl leading-relaxed shadow-inner" placeholder="Type your lesson notes..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // --- Navigation Logic (Fixed Viewport) ---
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.step-container');
+        const totalSteps = steps.length;
+        const progressBar = document.getElementById('progress-bar');
+        const stepDisplay = document.getElementById('current-step-display');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        function updateUI() {
+            steps.forEach((step, index) => {
+                if(index === currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+
+            const progressPercentage = ((currentStep) / (totalSteps - 1)) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            stepDisplay.innerText = currentStep + 1;
+
+            btnPrev.disabled = currentStep === 0;
+            btnNext.style.display = currentStep === totalSteps - 1 ? 'none' : 'flex';
+        }
+
+        function nextStep() { if (currentStep < totalSteps - 1) { currentStep++; updateUI(); } }
+        function prevStep() { if (currentStep > 0) { currentStep--; updateUI(); } }
+
+        updateUI();
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') nextStep();
+            if(e.key === 'ArrowLeft') prevStep();
+        });
+
+        // --- Panels ---
+        const overlay = document.getElementById('overlay');
+        const dictPanel = document.getElementById('dict-panel');
+        const wbPanel = document.getElementById('whiteboard-panel');
+
+        function openDictionary(word, def, ex, prompt) {
+            document.getElementById('dict-word').innerText = word;
+            document.getElementById('dict-def').innerText = def;
+            document.getElementById('dict-ex').innerText = `"${ex}"`;
+            document.getElementById('dict-prompt').innerText = prompt;
+            wbPanel.classList.remove('open');
+            dictPanel.classList.add('open');
+            overlay.classList.add('active');
+        }
+
+        function toggleWhiteboard() {
+            dictPanel.classList.remove('open');
+            wbPanel.classList.add('open');
+            overlay.classList.add('active');
+        }
+
+        function closePanels() {
+            dictPanel.classList.remove('open');
+            wbPanel.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+        
+        function checkFact(btn, isTrueClicked) {
+            const feedback = document.getElementById('fact-feedback');
+            if (!isTrueClicked) {
+                feedback.innerText = "Correct! She was a teenager when Krypton exploded.";
+                feedback.style.color = "#2b9348";
+            } else {
+                feedback.innerText = "False! That is Superman's story. She saw her planet die.";
+                feedback.style.color = "#E50914";
+            }
+        }
+
+        // --- Grammar Sandbox Logic ---
+        function updateGrammar(type) {
+            document.querySelectorAll('.grammar-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const box = document.getElementById('grammar-box');
+            const expl = document.getElementById('grammar-explanation');
+
+            if(type === 'usedto') {
+                box.innerHTML = `<span class="text-white">Kara</span> <span class="text-superRed font-bold border-b-4 border-superRed pb-1 px-4">used to live</span> <span class="text-white">on Krypton.</span>`;
+                expl.innerHTML = "<strong>Past Habit / State:</strong> Something that was true in the past, but is <strong class='text-superRed'>not true anymore</strong>. (Krypton is destroyed).";
+            } else if(type === 'beusedto') {
+                box.innerHTML = `<span class="text-white">She</span> <span class="text-superBlue font-bold border-b-4 border-superBlue pb-1 px-4">is used to flying</span> <span class="text-white">now.</span>`;
+                expl.innerHTML = "<strong>Current Custom:</strong> Describes something that is <strong class='text-superBlue'>normal or familiar</strong> right now. (Use Verb-ING).";
+            } else if(type === 'getusedto') {
+                box.innerHTML = `<span class="text-white">She</span> <span class="text-superGold font-bold border-b-4 border-superGold pb-1 px-4">is getting used to</span> <span class="text-white">Earth.</span>`;
+                expl.innerHTML = "<strong>The Process:</strong> Describes the <strong class='text-superGold'>process of adapting</strong> to a new situation. It is happening now.";
+            }
+        }
+
+        // --- Syntax Builders & Errors ---
+        function moveWord(element, dropzoneId, wordbankId) {
+            const dropzone = document.getElementById(dropzoneId);
+            const wordbank = document.getElementById(wordbankId);
+            dropzone.classList.remove('correct', 'incorrect');
+            if (element.parentElement.id === wordbankId) dropzone.appendChild(element);
+            else wordbank.appendChild(element);
+        }
+
+        function checkSentenceBuilder(dropzoneId, correctArray) {
+            const dropzone = document.getElementById(dropzoneId);
+            const words = Array.from(dropzone.children).map(child => child.innerText);
+            const feedback = document.getElementById('sb-feedback-' + dropzoneId.split('-')[1]);
+            feedback.classList.remove('hidden');
+
+            if (words.length !== correctArray.length) {
+                dropzone.className = 'sb-dropzone incorrect mb-8';
+                feedback.innerText = "You must use ALL the blocks!";
+                feedback.className = "text-center mt-6 text-superRed font-bold text-2xl";
+                return;
+            }
+
+            if (words.every((val, i) => val === correctArray[i])) {
+                dropzone.className = 'sb-dropzone correct mb-8';
+                feedback.innerText = "Excellent Syntax!";
+                feedback.className = "text-center mt-6 text-success font-bold text-2xl";
+            } else {
+                dropzone.className = 'sb-dropzone incorrect mb-8';
+                feedback.innerText = "Wrong order. Try again.";
+                feedback.className = "text-center mt-6 text-superRed font-bold text-2xl";
+            }
+        }
+
+        function checkError(element, isActualError, correctWord, feedbackId) {
+            element.parentElement.querySelectorAll('span').forEach(s => s.className = '');
+            if(isActualError) {
+                element.classList.add('wrong-clicked');
+                element.innerText = correctWord;
+                document.getElementById(feedbackId).innerText = "Correct! You fixed the glitch.";
+                document.getElementById(feedbackId).style.color = "#2b9348";
+            } else {
+                element.classList.add('correct-clicked');
+                document.getElementById(feedbackId).innerText = "That word is grammatically correct. Keep looking.";
+                document.getElementById(feedbackId).style.color = "#D2122E";
+            }
+        }
+
+        // --- Whiteboard Features ---
+        function addNoteTimestamp() {
+            const textarea = document.getElementById('whiteboard-textarea');
+            textarea.value += `\n[ --- SCENE ${currentStep + 1} --- ]\n> `;
+            textarea.focus();
+        }
+        function clearWhiteboard() {
+            const textarea = document.getElementById('whiteboard-textarea');
+            if(textarea.value.trim() !== '' && confirm("Delete all notes?")) textarea.value = '';
+        }
+        function downloadNotes() {
+            const text = document.getElementById('whiteboard-textarea').value;
+            if(!text.trim()) return alert("Notes are empty!");
+            const blob = new Blob([text], { type: 'text/plain' });
+            const anchor = document.createElement('a');
+            anchor.download = `WOLFLIX_Supergirl_${new Date().toISOString().split('T')[0]}.txt`;
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.target = '_blank'; anchor.style.display = 'none';
+            document.body.appendChild(anchor); anchor.click(); document.body.removeChild(anchor);
+        }
+    </script>
+</body>
+</html>
